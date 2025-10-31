@@ -324,6 +324,20 @@ public class KVSTranscribeStreamingLambda implements RequestHandler<Map<String, 
                 executor.submit(() -> {
                     try {
                         while (demand.get() > 0) {
+                            // If no data immediately available, inject a short silence frame to avoid idle timeout
+                            try {
+                                if (kvsInputStream.available() <= 0) {
+                                    byte[] silence20ms = new byte[320]; // 20ms of 8kHz mono PCM16
+                                    AudioEvent silenceEvent = AudioEvent.builder()
+                                            .audioChunk(software.amazon.awssdk.core.SdkBytes.fromByteArray(silence20ms))
+                                            .build();
+                                    subscriber.onNext(silenceEvent);
+                                    Thread.sleep(20);
+                                    demand.getAndDecrement();
+                                    continue;
+                                }
+                            } catch (IOException ignore) { /* fall back to blocking read */ }
+
                             byte[] buffer = new byte[CHUNK_SIZE_IN_BYTES];
                             int bytesRead = kvsInputStream.read(buffer);
 

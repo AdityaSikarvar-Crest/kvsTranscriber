@@ -279,7 +279,8 @@ public class TranscribeStreamingRetryClient implements AutoCloseable {
      * @return True if the exception is retriable
      */
     private boolean isExceptionRetriable(Throwable e) {
-        if (nonRetriableExceptions.contains(e.getCause().getClass())) {
+        Throwable cause = (e.getCause() != null) ? e.getCause() : e;
+        if (cause != null && nonRetriableExceptions.contains(cause.getClass())) {
             return false;
         }
         return true;

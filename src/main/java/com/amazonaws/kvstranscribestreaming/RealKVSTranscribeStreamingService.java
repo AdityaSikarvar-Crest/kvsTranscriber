@@ -273,8 +273,20 @@ public class RealKVSTranscribeStreamingService implements RequestHandler<Transcr
                                     .build();
                             subscriber.onNext(audioEvent);
                         } else {
-                            subscriber.onComplete();
-                            break;
+                            // No bytes available right now; inject short silence to keep stream alive
+                            // 20ms of 8kHz mono PCM16 => 160 samples => 320 bytes of zeros
+                            byte[] silence20ms = new byte[320];
+                            java.nio.ByteBuffer silenceBuffer = java.nio.ByteBuffer.wrap(silence20ms);
+                            software.amazon.awssdk.services.transcribestreaming.model.AudioEvent silenceEvent =
+                                software.amazon.awssdk.services.transcribestreaming.model.AudioEvent.builder()
+                                    .audioChunk(software.amazon.awssdk.core.SdkBytes.fromByteBuffer(silenceBuffer))
+                                    .build();
+                            subscriber.onNext(silenceEvent);
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                            }
                         }
                         demand.getAndDecrement();
                     }
