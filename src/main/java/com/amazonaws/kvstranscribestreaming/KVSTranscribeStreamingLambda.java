@@ -78,6 +78,10 @@ public class KVSTranscribeStreamingLambda implements RequestHandler<Map<String, 
             String streamARN = (String) input.get("streamARN");
             String startFragmentNum = (String) input.get("startFragmentNum");
             String languageCode = (String) input.get("languageCode");
+            if (languageCode == null || languageCode.trim().isEmpty()) {
+                String envLanguage = System.getenv("TRANSCRIBE_LANGUAGE_CODE");
+                languageCode = (envLanguage != null && !envLanguage.trim().isEmpty()) ? envLanguage.trim() : "en-US";
+            }
             Boolean streamAudioFromCustomer = (Boolean) input.get("streamAudioFromCustomer");
             Boolean streamAudioToCustomer = (Boolean) input.get("streamAudioToCustomer");
             
