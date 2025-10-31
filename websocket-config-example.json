@@ -1,0 +1,8 @@
+{
+  "WEBSOCKET_ENDPOINT": "wss://your-websocket-server.com/transcription",
+  "WEBSOCKET_CONNECTION_TIMEOUT_SECONDS": "30",
+  "WEBSOCKET_MAX_RECONNECT_ATTEMPTS": "3",
+  "TRANSCRIBE_REGION": "us-east-1",
+  "APP_REGION": "us-east-1",
+  "START_SELECTOR_TYPE": "FRAGMENT_NUMBER"
+}
